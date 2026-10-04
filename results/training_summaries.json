@@ -1,0 +1,32 @@
+{
+  "EfficientNet-B0": {
+    "model_name": "EfficientNet-B0",
+    "total_params": 4730880,
+    "trainable_params": 3886400,
+    "best_val_acc": 98.76660341555977,
+    "best_val_loss": 0.0604371558817411,
+    "total_train_time": 8727.817391633987,
+    "epochs_trained": 15,
+    "checkpoint_path": "checkpoints\\efficientnet_b0.pth"
+  },
+  "ResNet-50": {
+    "model_name": "ResNet-50",
+    "total_params": 24624580,
+    "trainable_params": 16081284,
+    "best_val_acc": 98.57685009487666,
+    "best_val_loss": 0.07008768966336659,
+    "total_train_time": 11457.863155126572,
+    "epochs_trained": 15,
+    "checkpoint_path": "checkpoints\\resnet_50.pth"
+  },
+  "DeiT-Small": {
+    "model_name": "DeiT-Small",
+    "total_params": 21947012,
+    "trainable_params": 3681668,
+    "best_val_acc": 82.92220113851992,
+    "best_val_loss": 0.45562695045964313,
+    "total_train_time": 8981.420664787292,
+    "epochs_trained": 15,
+    "checkpoint_path": "checkpoints\\deit_small.pth"
+  }
+}

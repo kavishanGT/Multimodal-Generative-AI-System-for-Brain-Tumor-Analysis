@@ -1,0 +1,20 @@
+# Deep Learning & Vision
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.30.0
+Pillow>=9.5.0
+
+# Scientific & Evaluation Metrics
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.2.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+tqdm>=4.65.0
+
+# Web Application Backend
+Flask>=2.3.0
+Flask-Cors>=4.0.0
+
+# Clinical Report Generation (PDF / HL7 FHIR)
+fpdf2>=2.7.0

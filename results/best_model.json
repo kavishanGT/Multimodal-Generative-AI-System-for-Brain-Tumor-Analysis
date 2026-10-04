@@ -1,0 +1,7 @@
+{
+  "best_model": "EfficientNet-B0",
+  "accuracy": 99.14691943127963,
+  "f1_weighted": 99.14920348769627,
+  "roc_auc_macro": 99.89562894806328,
+  "checkpoint": "checkpoints\\efficientnet_b0.pth"
+}

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Tumor Analysis | AI-Powered MRI Classification</title>
+    <meta name="description" content="AI-powered brain tumor classification system using EfficientNet-B0. Upload MRI scans for instant analysis with HL7 FHIR report generation.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- Background animated grid -->
+    <div class="bg-grid"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 40 40" fill="none">
+                        <circle cx="20" cy="20" r="18" stroke="url(#grad)" stroke-width="2.5" fill="none"/>
+                        <path d="M14 20 C14 14, 20 10, 20 10 C20 10, 26 14, 26 20 C26 26, 20 30, 20 30 C20 30, 14 26, 14 20Z" fill="url(#grad)" opacity="0.8"/>
+                        <circle cx="20" cy="18" r="3" fill="white" opacity="0.9"/>
+                        <defs>
+                            <linearGradient id="grad" x1="0" y1="0" x2="40" y2="40">
+                                <stop offset="0%" stop-color="#6366f1"/>
+                                <stop offset="100%" stop-color="#06b6d4"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>NeuroScan AI</h1>
+                    <span>Brain Tumor Analysis System</span>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-dot"></div>
+                <span id="modelStatus">Loading model...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Upload Section -->
+        <section class="upload-section" id="uploadSection">
+            <div class="section-header">
+                <h2>Patient MRI Analysis</h2>
+                <p>Upload a brain MRI scan for AI-powered tumor classification</p>
+            </div>
+
+            <div class="analysis-grid">
+                <!-- Left: Upload + Patient Info -->
+                <div class="panel upload-panel">
+                    <div class="panel-header">
+                        <span class="panel-icon">&#128196;</span>
+                        <h3>Patient Information</h3>
+                    </div>
+                    <form id="patientForm" class="patient-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="patientName">Patient Name</label>
+                                <input type="text" id="patientName" placeholder="e.g., John Anderson" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="patientId">Patient ID</label>
+                                <input type="text" id="patientId" placeholder="e.g., PT-2024-001">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="patientAge">Age</label>
+                                <input type="number" id="patientAge" placeholder="e.g., 54" min="0" max="150">
+                            </div>
+                            <div class="form-group">
+                                <label for="patientGender">Gender</label>
+                                <select id="patientGender">
+                                    <option value="unknown">Select...</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="referringPhysician">Referring Physician</label>
+                            <input type="text" id="referringPhysician" placeholder="e.g., Dr. Sarah Williams">
+                        </div>
+                        <div class="form-group">
+                            <label for="clinicalNotes">Clinical Notes</label>
+                            <textarea id="clinicalNotes" rows="3" placeholder="Enter relevant clinical observations..."></textarea>
+                        </div>
+                    </form>
+
+                    <!-- Upload Area -->
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <svg viewBox="0 0 64 64" fill="none">
+                                <rect x="8" y="16" width="48" height="36" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M32 28 L32 44" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M25 35 L32 28 L39 35" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="22" cy="26" r="3" fill="currentColor" opacity="0.5"/>
+                            </svg>
+                        </div>
+                        <p class="upload-text">Drag & drop MRI scan here</p>
+                        <p class="upload-subtext">or click to browse (JPG, PNG, BMP, TIFF)</p>
+                        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.bmp,.tif,.tiff" hidden>
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div class="image-preview" id="imagePreview" style="display:none;">
+                        <div class="preview-header">
+                            <span>MRI Scan Preview</span>
+                            <button class="btn-icon" id="removeImage" title="Remove image">&times;</button>
+                        </div>
+                        <img id="previewImg" src="" alt="MRI Preview">
+                    </div>
+
+                    <button class="btn-primary" id="analyzeBtn" disabled>
+                        <span class="btn-loader" id="btnLoader" style="display:none;"></span>
+                        <span id="btnText">Analyze MRI Scan</span>
+                    </button>
+                </div>
+
+                <!-- Right: Results -->
+                <div class="panel results-panel" id="resultsPanel" style="display:none;">
+                    <div class="panel-header">
+                        <span class="panel-icon">&#129504;</span>
+                        <h3>Analysis Results</h3>
+                    </div>
+
+                    <!-- Diagnosis Card -->
+                    <div class="diagnosis-card" id="diagnosisCard">
+                        <div class="diagnosis-header">
+                            <div class="diagnosis-icon" id="diagnosisIcon"></div>
+                            <div class="diagnosis-info">
+                                <h4 id="diagnosisTitle">-</h4>
+                                <span class="severity-badge" id="severityBadge">-</span>
+                            </div>
+                            <div class="confidence-circle" id="confidenceCircle">
+                                <svg viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="42" class="bg-ring"/>
+                                    <circle cx="50" cy="50" r="42" class="progress-ring" id="progressRing"/>
+                                </svg>
+                                <div class="confidence-value">
+                                    <span id="confidenceValue">0</span>
+                                    <small>%</small>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="diagnosis-desc" id="diagnosisDesc"></p>
+                    </div>
+
+                    <!-- Class Probabilities -->
+                    <div class="probabilities-section">
+                        <h4>Classification Probabilities</h4>
+                        <div class="prob-bars" id="probBars"></div>
+                    </div>
+
+                    <!-- Recommended Actions -->
+                    <div class="actions-section" id="actionsSection">
+                        <h4>Recommended Actions</h4>
+                        <ul class="actions-list" id="actionsList"></ul>
+                    </div>
+
+                    <!-- Model Info -->
+                    <div class="model-info-bar">
+                        <span>Model: <strong id="modelNameResult">-</strong></span>
+                        <span>Inference: <strong id="inferenceTime">-</strong></span>
+                    </div>
+
+                    <!-- Report Buttons -->
+                    <div class="report-buttons">
+                        <button class="btn-report btn-hl7" id="downloadHL7">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            Download HL7 FHIR PDF
+                        </button>
+                        <button class="btn-report btn-preview" id="previewReport">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            Preview PDF Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PDF Preview Modal -->
+        <div class="modal-overlay" id="pdfModal" style="display:none;">
+            <div class="modal-content modal-pdf">
+                <div class="modal-header">
+                    <h3>HL7 FHIR Diagnostic Report (PDF Preview)</h3>
+                    <div class="modal-header-actions">
+                        <a id="openNewTabBtn" href="#" target="_blank" class="btn-secondary modal-action-btn">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Open in New Tab
+                        </a>
+                        <button class="btn-icon" id="closeModal">&times;</button>
+                    </div>
+                </div>
+                <div class="modal-body modal-pdf-body">
+                    <iframe id="pdfPreviewFrame" src="" title="HL7 FHIR PDF Report"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="modalDownloadBtn">Download PDF</button>
+                    <button class="btn-secondary" id="closeModalBtn">Close</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Brain Tumor Analysis System | AI-Assisted Diagnostic Tool</p>
+        <p class="disclaimer">This system is for research purposes only. Not intended as a substitute for professional medical diagnosis.</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
